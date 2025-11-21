@@ -1,5 +1,9 @@
 # Vue Form Builder – Extended Wrapper
 
+[![npm](https://img.shields.io/npm/v/@winkcor/vueform-builder)](https://www.npmjs.com/package/@winkcor/vueform-builder)
+![npm](https://img.shields.io/npm/dm/@winkcor/vueform-builder)
+[![GitHub](https://img.shields.io/github/license/winkcor/vform-builder?style=flat)](https://github.com/winkcor/vform-builder/blob/master/LICENSE)
+
 A lightweight wrapper built on top of **Vue Form Builder**, providing additional features such as theming, localization, and easy external control through refs.
 
 This component enhances the base form builder while keeping the original API intact.

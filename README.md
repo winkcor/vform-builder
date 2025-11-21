@@ -66,7 +66,7 @@ import '@winkcor/vueform-builder/style.css';
 Huge thanks to our amazing sponsors! Your support helps keep this project alive and actively maintained.
 
 <div align="center">
-  <a href="https://example.com/platinum-sponsor">
+  <a href="https://github.com/wenex-org">
     <img src="https://avatars.githubusercontent.com/u/124876522?s=200&v=4" width="200" alt="Wenex" style="padding: 20px; border: 1px solid #eee; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
     <br>
     <strong>Wenex</strong>

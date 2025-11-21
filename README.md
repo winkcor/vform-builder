@@ -1,6 +1,7 @@
 # Vue Form Builder – Extended Wrapper
 
 [![npm](https://img.shields.io/npm/v/@winkcor/vueform-builder)](https://www.npmjs.com/package/@winkcor/vueform-builder)
+[![Build Status](https://github.com/winkcor/vueform-builder/actions/workflows/npm-ci.yml/badge.svg)](https://github.com/winkcor/vueform-builder/actions/workflows/npm-ci.yml)
 ![npm](https://img.shields.io/npm/dm/@winkcor/vueform-builder)
 [![GitHub](https://img.shields.io/github/license/winkcor/vform-builder?style=flat)](https://github.com/winkcor/vform-builder/blob/master/LICENSE)
 

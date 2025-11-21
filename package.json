@@ -1,12 +1,12 @@
 {
   "name": "@winkcor/vueform-builder",
-  "private": false,
   "version": "0.0.1-beta.1",
   "type": "module",
   "author": "Hossien S. <salaryh801@gmail.com",
-  "files": [
-    "dist"
+  "contributors": [
+    "Vahid V. <vhid.vz@gmail.com>"
   ],
+  "license": "MIT",
   "main": "./dist/vform-builder.umd.cjs",
   "module": "./dist/vform-builder.js",
   "types": "./dist/index.d.ts",
@@ -19,6 +19,20 @@
     },
     "./style.css": "./dist/vform-builder.css"
   },
+  "bugs": {
+    "url": "https://github.com/winkcor/vform-builder/issues"
+  },
+  "keywords": [
+    "vueform-builder"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/winkcor/vform-builder.git"
+  },
+  "homepage": "https://github.com/winkcor/vform-builder#readme",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite --port 3006",
     "build": "vue-tsc -b && vite build",
@@ -27,6 +41,7 @@
     "build-storybook": "storybook build",
     "lint": "eslint . --fix",
     "format": "prettier --write \"./**/*.{ts,js,json,vue,css,scss,sass}\"",
+    "test": "echo \"Error: no test specified\" && exit 0",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -84,5 +99,13 @@
     "vitest": "^4.0.3",
     "vue-eslint-parser": "^10.2.0",
     "vue-tsc": "^3.1.0"
-  }
+  },
+  "engines": {
+    "node": ">=22.x.x <23",
+    "npm": "~10.9.2"
+  },
+  "os": [
+    "!win32"
+  ],
+  "packageManager": "pnpm@10.5.2"
 }

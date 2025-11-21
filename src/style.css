@@ -1,0 +1,19 @@
+@layer theme, base, vuetify, components, utilities;
+@import 'vuetify/styles' layer(vuetify);
+@import 'tailwindcss';
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+html {
+  overflow-y: hidden;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}

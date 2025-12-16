@@ -4,8 +4,8 @@ import { defineStore } from 'pinia';
 import type { Item } from '@/components/form-builder';
 
 export const useDragStore = defineStore('drag_item', () => {
-  const dragData = ref<null | { x: number; y: number; item: Item }>(null);
-  function setDrag(data: { x: number; y: number; item: Item }) {
+  const dragData = ref<null | { x: number; y: number; item: Item; isDragging?: boolean }>(null);
+  function setDrag(data: { x: number; y: number; item: Item; isDragging?: boolean }) {
     dragData.value = data;
   }
   function clear() {

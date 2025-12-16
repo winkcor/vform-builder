@@ -22,13 +22,13 @@ const tab = ref('fields');
     :class="isOpen ? 'w-120 opacity-100' : 'w-0 opacity-0'"
     class="m-2! flex flex-col gap-2 bg-[rgb(var(--v-theme-surface))] p-2! transition-all duration-300"
   >
-    <VSheet>
+    <VSheet class="flex! h-full! flex-col">
       <VTabs v-model="tab" class="w-full" grow>
         <VTab value="fields"> {{ t('fields') }} </VTab>
         <VTab value="static"> {{ t('static') }} </VTab>
       </VTabs>
 
-      <VTabsWindow v-model="tab" class="!overflow-visible">
+      <VTabsWindow v-model="tab" class="h-full! overflow-y-auto">
         <VTabsWindowItem value="fields">
           <DraggableItem v-for="item in fields" :key="item.id" :item="item" />
         </VTabsWindowItem>

@@ -20,7 +20,7 @@ watch(
 </script>
 
 <template>
-  <VApp>
+  <VApp class="h-full!">
     <div class="relative flex h-screen max-h-screen w-full flex-col">
       <FormBuilder ref="formBuilderRef" v-model="formData" locale="en" theme="dark" />
     </div>

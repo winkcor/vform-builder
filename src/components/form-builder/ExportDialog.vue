@@ -24,12 +24,17 @@ const { t } = useI18n();
 
 const updateForm = (v: any) => {
   if (!v) return;
-  const parsed = JSON.parse(v);
-  const form = {
-    schema: parsed.schema && typeof parsed.schema === 'object' ? parsed.schema : {},
-    steps: parsed.steps && typeof parsed.steps === 'object' && Object.keys(parsed.steps).length ? parsed.steps : undefined,
-  };
-  emit('update-form', form);
+
+  try {
+    const parsed = JSON.parse(v);
+    const form = {
+      schema: parsed.schema && typeof parsed.schema === 'object' ? parsed.schema : {},
+      steps: parsed.steps && typeof parsed.steps === 'object' && Object.keys(parsed.steps).length ? parsed.steps : undefined,
+    };
+    emit('update-form', form);
+  } catch (error) {
+    console.error('Invalid JSON format:', error);
+  }
 };
 </script>
 

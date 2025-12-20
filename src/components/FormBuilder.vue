@@ -208,6 +208,7 @@ defineExpose({
               :displayed-items="displayedItems"
               :form="formStore.form"
               :steps-enabled="stepsEnabled"
+              :locale="props.locale"
               @copy="onCopy"
               @delete="handleDelete"
               @drop="onDropped"

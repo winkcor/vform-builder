@@ -110,6 +110,7 @@ export default {
   autocomplete: 'تکمیل خودکار',
   customAttributes: 'ویژگی‌های سفارشی',
   addAttribute: 'افزودن ویژگی',
+  addLanguage: 'افزودن زبان',
   key: 'کلید',
   id: 'شناسه',
   step: 'مرحله',

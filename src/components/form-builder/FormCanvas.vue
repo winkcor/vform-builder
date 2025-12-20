@@ -15,6 +15,7 @@ defineProps<{
   form: FormType;
   stepsEnabled: boolean;
   formComponent?: any;
+  locale?: string;
 }>();
 
 defineEmits<{
@@ -45,6 +46,7 @@ defineExpose({
           :gridRef="gridRef!"
           :item="item"
           :formComponent="formComponent"
+          :locale="$props.locale"
           @delete="$emit('delete', item)"
           @copy="$emit('copy', item)"
         />

@@ -8,7 +8,7 @@ export interface RadioTabItem {
 
 export interface SchemaItem {
   type: string;
-  label?: string;
+  label?: string | Record<string, string>;
   name?: string;
   buttonLabel?: string;
   submits?: boolean;
@@ -90,7 +90,7 @@ export interface SchemaItem {
   };
   builder?: {
     type: string;
-    label: string;
+    label: string | Record<string, string>;
   };
   columns?: {
     container: number;
@@ -98,7 +98,7 @@ export interface SchemaItem {
 }
 
 export interface StepItem {
-  label: string;
+  label: string | Record<string, string>;
   elements: string[];
   builder?: {
     type: string;
@@ -107,8 +107,8 @@ export interface StepItem {
     previous: boolean;
   };
   labels?: {
-    next?: string;
-    previous?: string;
+    next?: string | Record<string, string>;
+    previous?: string | Record<string, string>;
   };
 }
 

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Icon } from '@iconify/vue';
 
 import { useFormStore } from '@/store/form';
@@ -10,6 +10,16 @@ import { useI18n } from './composables/useI18n';
 const formStore = useFormStore();
 const propertyForm = usePropertiesForm();
 const { t } = useI18n();
+
+const addingStepLabelLang = ref(false);
+const addingStepNextLabelLang = ref(false);
+const addingStepPreviousLabelLang = ref(false);
+const addingItemLabelLang = ref(false);
+
+const newStepLabelLang = ref({ code: '', value: '' });
+const newStepNextLabelLang = ref({ code: '', value: '' });
+const newStepPreviousLabelLang = ref({ code: '', value: '' });
+const newItemLabelLang = ref({ code: '', value: '' });
 
 const isStaticElement = computed(() => propertyForm.item?.type === 'static');
 const isFieldElement = computed(
@@ -75,7 +85,247 @@ function changeKeyName(obj: Record<string, any>, oldName: string, newName: strin
   formStore.form.schema = obj;
 }
 
-function updateStepLabel(val: string) {
+function isLabelObject(label: any): boolean {
+  return typeof label === 'object' && label !== null && !Array.isArray(label);
+}
+
+function getLabelString(label: any): string {
+  return isLabelObject(label) ? label.en || label.fa || Object.values(label)[0] || '' : label || '';
+}
+
+function convertLabelToObject(label: string, language: string = 'en'): Record<string, string> {
+  return { [language]: label };
+}
+
+function addLanguageToLabel(label: any, language: string, value: string = ''): Record<string, string> {
+  const labelObj = isLabelObject(label) ? { ...label } : convertLabelToObject(label || '');
+  labelObj[language] = value;
+  return labelObj;
+}
+
+function removeLanguageFromLabel(label: any, language: string): any {
+  if (!isLabelObject(label)) return label;
+  const newLabel = { ...label };
+  delete newLabel[language];
+  const remainingKeys = Object.keys(newLabel);
+  if (remainingKeys.length === 0) return '';
+  if (remainingKeys.length === 1) return newLabel[remainingKeys[0]!];
+  return newLabel;
+}
+
+function addStepLabelTranslation(language: string, value: string = '') {
+  if (propertyForm.step && formStore.form.steps && language.trim()) {
+    const stepKey = propertyForm.step.id;
+    if (formStore.form.steps[stepKey]) {
+      const currentLabel = propertyForm.step.label;
+      const newLabel = addLanguageToLabel(currentLabel, language, value);
+      updateStepLabel(newLabel);
+    }
+  }
+  addingStepLabelLang.value = false;
+  newStepLabelLang.value = { code: '', value: '' };
+}
+
+function removeStepLabelTranslation(language: string) {
+  if (propertyForm.step && formStore.form.steps) {
+    const stepKey = propertyForm.step.id;
+    if (formStore.form.steps[stepKey]) {
+      const currentLabel = propertyForm.step.label;
+      const newLabel = removeLanguageFromLabel(currentLabel, language);
+      updateStepLabel(newLabel);
+    }
+  }
+}
+
+function addStepNextLabelTranslation(language: string, value: string = '') {
+  if (propertyForm.step && formStore.form.steps && language.trim()) {
+    const stepKey = propertyForm.step.id;
+    if (formStore.form.steps[stepKey]) {
+      if (!propertyForm.step.labels) {
+        propertyForm.step.labels = {};
+      }
+      const currentLabel = propertyForm.step.labels.next;
+      const newLabel = addLanguageToLabel(currentLabel, language, value);
+      updateStepNextLabel(newLabel);
+    }
+  }
+  addingStepNextLabelLang.value = false;
+  newStepNextLabelLang.value = { code: '', value: '' };
+}
+
+function removeStepNextLabelTranslation(language: string) {
+  if (propertyForm.step && formStore.form.steps) {
+    const stepKey = propertyForm.step.id;
+    if (formStore.form.steps[stepKey]) {
+      if (!propertyForm.step.labels) {
+        propertyForm.step.labels = {};
+      }
+      const currentLabel = propertyForm.step.labels.next;
+      const newLabel = removeLanguageFromLabel(currentLabel, language);
+      updateStepNextLabel(newLabel);
+    }
+  }
+}
+
+function addStepPreviousLabelTranslation(language: string, value: string = '') {
+  if (propertyForm.step && formStore.form.steps && language.trim()) {
+    const stepKey = propertyForm.step.id;
+    if (formStore.form.steps[stepKey]) {
+      if (!propertyForm.step.labels) {
+        propertyForm.step.labels = {};
+      }
+      const currentLabel = propertyForm.step.labels.previous;
+      const newLabel = addLanguageToLabel(currentLabel, language, value);
+      updateStepPreviousLabel(newLabel);
+    }
+  }
+  addingStepPreviousLabelLang.value = false;
+  newStepPreviousLabelLang.value = { code: '', value: '' };
+}
+
+function removeStepPreviousLabelTranslation(language: string) {
+  if (propertyForm.step && formStore.form.steps) {
+    const stepKey = propertyForm.step.id;
+    if (formStore.form.steps[stepKey]) {
+      if (!propertyForm.step.labels) {
+        propertyForm.step.labels = {};
+      }
+      const currentLabel = propertyForm.step.labels.previous;
+      const newLabel = removeLanguageFromLabel(currentLabel, language);
+      updateStepPreviousLabel(newLabel);
+    }
+  }
+}
+
+function addItemLabelTranslation(language: string, value: string = '') {
+  if (propertyForm.item && language.trim()) {
+    const currentLabel = propertyForm.item.label;
+    const newLabel = addLanguageToLabel(currentLabel, language, value);
+    updateItemLabel(newLabel);
+  }
+  addingItemLabelLang.value = false;
+  newItemLabelLang.value = { code: '', value: '' };
+}
+
+function removeItemLabelTranslation(language: string) {
+  if (propertyForm.item) {
+    const currentLabel = propertyForm.item.label;
+    const newLabel = removeLanguageFromLabel(currentLabel, language);
+    updateItemLabel(newLabel);
+  }
+}
+
+function startAddingStepLabelLang() {
+  addingStepLabelLang.value = true;
+}
+
+function cancelAddingStepLabelLang() {
+  addingStepLabelLang.value = false;
+  newStepLabelLang.value = { code: '', value: '' };
+}
+
+function confirmAddingStepLabelLang() {
+  if (newStepLabelLang.value.code.trim()) {
+    addStepLabelTranslation(newStepLabelLang.value.code, newStepLabelLang.value.value);
+  }
+}
+
+function startAddingStepNextLabelLang() {
+  addingStepNextLabelLang.value = true;
+}
+
+function cancelAddingStepNextLabelLang() {
+  addingStepNextLabelLang.value = false;
+  newStepNextLabelLang.value = { code: '', value: '' };
+}
+
+function confirmAddingStepNextLabelLang() {
+  if (newStepNextLabelLang.value.code.trim()) {
+    addStepNextLabelTranslation(newStepNextLabelLang.value.code, newStepNextLabelLang.value.value);
+  }
+}
+
+function startAddingStepPreviousLabelLang() {
+  addingStepPreviousLabelLang.value = true;
+}
+
+function cancelAddingStepPreviousLabelLang() {
+  addingStepPreviousLabelLang.value = false;
+  newStepPreviousLabelLang.value = { code: '', value: '' };
+}
+
+function confirmAddingStepPreviousLabelLang() {
+  if (newStepPreviousLabelLang.value.code.trim()) {
+    addStepPreviousLabelTranslation(newStepPreviousLabelLang.value.code, newStepPreviousLabelLang.value.value);
+  }
+}
+
+function startAddingItemLabelLang() {
+  addingItemLabelLang.value = true;
+}
+
+function cancelAddingItemLabelLang() {
+  addingItemLabelLang.value = false;
+  newItemLabelLang.value = { code: '', value: '' };
+}
+
+function confirmAddingItemLabelLang() {
+  if (newItemLabelLang.value.code.trim()) {
+    addItemLabelTranslation(newItemLabelLang.value.code, newItemLabelLang.value.value);
+  }
+}
+
+function updateStepLabelLanguage(language: string, value: string) {
+  if (propertyForm.step && formStore.form.steps) {
+    const currentLabel = propertyForm.step.label;
+    const labelObj = isLabelObject(currentLabel)
+      ? { ...(currentLabel as Record<string, string>) }
+      : convertLabelToObject(getLabelString(currentLabel), language);
+    labelObj[language] = value;
+    updateStepLabel(labelObj);
+  }
+}
+
+function updateStepNextLabelLanguage(language: string, value: string) {
+  if (propertyForm.step && formStore.form.steps) {
+    if (!propertyForm.step.labels) {
+      propertyForm.step.labels = {};
+    }
+    const currentLabel = propertyForm.step.labels.next;
+    const labelObj = isLabelObject(currentLabel)
+      ? { ...(currentLabel as Record<string, string>) }
+      : convertLabelToObject(getLabelString(currentLabel), language);
+    labelObj[language] = value;
+    updateStepNextLabel(labelObj);
+  }
+}
+
+function updateStepPreviousLabelLanguage(language: string, value: string) {
+  if (propertyForm.step && formStore.form.steps) {
+    if (!propertyForm.step.labels) {
+      propertyForm.step.labels = {};
+    }
+    const currentLabel = propertyForm.step.labels.previous;
+    const labelObj = isLabelObject(currentLabel)
+      ? { ...(currentLabel as Record<string, string>) }
+      : convertLabelToObject(getLabelString(currentLabel), language);
+    labelObj[language] = value;
+    updateStepPreviousLabel(labelObj);
+  }
+}
+
+function updateItemLabelLanguage(language: string, value: string) {
+  if (propertyForm.item) {
+    const currentLabel = propertyForm.item.label;
+    const labelObj = isLabelObject(currentLabel)
+      ? { ...(currentLabel as Record<string, string>) }
+      : convertLabelToObject(getLabelString(currentLabel), language);
+    labelObj[language] = value;
+    updateItemLabel(labelObj);
+  }
+}
+
+function updateStepLabel(val: string | Record<string, string>) {
   if (propertyForm.step && formStore.form.steps) {
     propertyForm.step.label = val;
     const stepKey = propertyForm.step.id;
@@ -89,7 +339,7 @@ function updateStepLabel(val: string) {
   }
 }
 
-function updateStepNextLabel(val: string) {
+function updateStepNextLabel(val: string | Record<string, string>) {
   if (propertyForm.step && formStore.form.steps) {
     if (!propertyForm.step.labels) {
       propertyForm.step.labels = {};
@@ -100,7 +350,7 @@ function updateStepNextLabel(val: string) {
       formStore.form.steps[stepKey] = {
         ...formStore.form.steps[stepKey]!,
         labels: {
-          ...formStore.form.steps[stepKey]!.labels,
+          ...(formStore.form.steps[stepKey]!.labels || {}),
           next: val,
         },
         builder: formStore.form.steps[stepKey]!.builder || { type: 'steps' },
@@ -109,7 +359,7 @@ function updateStepNextLabel(val: string) {
   }
 }
 
-function updateStepPreviousLabel(val: string) {
+function updateStepPreviousLabel(val: string | Record<string, string>) {
   if (propertyForm.step && formStore.form.steps) {
     if (!propertyForm.step.labels) {
       propertyForm.step.labels = {};
@@ -120,7 +370,7 @@ function updateStepPreviousLabel(val: string) {
       formStore.form.steps[stepKey] = {
         ...formStore.form.steps[stepKey]!,
         labels: {
-          ...formStore.form.steps[stepKey]!.labels,
+          ...(formStore.form.steps[stepKey]!.labels || {}),
           previous: val,
         },
         builder: formStore.form.steps[stepKey]!.builder || { type: 'steps' },
@@ -158,7 +408,7 @@ function updateItemContent(val: string) {
   }
 }
 
-function updateItemLabel(val: string) {
+function updateItemLabel(val: string | Record<string, string>) {
   if (propertyForm.item) {
     propertyForm.item.label = val;
     if (formStore.form.schema[propertyForm.item.id]) {
@@ -198,7 +448,7 @@ function updateItemInputType(val: string) {
       schemaItem.inputType = val;
       if (val === 'email' || val === 'number') {
         if (!schemaItem.builder) {
-          schemaItem.builder = { type: val, label: schemaItem.label || '' };
+          schemaItem.builder = { type: val, label: getLabelString(schemaItem.label) || '' };
         } else {
           schemaItem.builder.type = val;
         }
@@ -819,22 +1069,211 @@ defineProps<{
 </script>
 
 <template>
-  <aside :class="isOpen ? 'w-120' : 'w-0'" class="m-2! bg-[rgb(var(--v-theme-surface))] transition-all duration-300">
+  <aside
+    :class="isOpen ? 'w-120' : 'w-0'"
+    class="m-2! overflow-y-auto bg-[rgb(var(--v-theme-surface))] transition-all duration-300"
+  >
     <VExpansionPanels v-if="propertyForm.step">
       <VExpansionPanel>
         <VExpansionPanelTitle>{{ t('properties') }}</VExpansionPanelTitle>
         <VExpansionPanelText>
-          <VTextField :model-value="propertyForm.step?.label || ''" :label="t('label')" @update:model-value="updateStepLabel" />
-          <VTextField
-            :model-value="propertyForm.step?.labels?.next || ''"
-            label="Next Button Label"
-            @update:model-value="updateStepNextLabel"
-          />
-          <VTextField
-            :model-value="propertyForm.step?.labels?.previous || ''"
-            label="Previous Button Label"
-            @update:model-value="updateStepPreviousLabel"
-          />
+          <div class="flex items-center gap-2">
+            <VTextField
+              :model-value="getLabelString(propertyForm.step?.label)"
+              :label="t('label')"
+              class="flex-1"
+              @update:model-value="
+                (val) => (isLabelObject(propertyForm.step?.label) ? updateStepLabelLanguage('en', val) : updateStepLabel(val))
+              "
+            />
+            <VBtn size="small" variant="outlined" @click="startAddingStepLabelLang" v-if="!isLabelObject(propertyForm.step?.label)">
+              <Icon icon="lucide:languages" />
+            </VBtn>
+          </div>
+          <div v-if="addingStepLabelLang" class="mt-2 flex items-center gap-2">
+            <VTextField
+              v-model="newStepLabelLang.code"
+              label="Language Code"
+              placeholder="en, fa, fr, etc."
+              class="flex-1"
+              density="compact"
+              @keyup.enter="confirmAddingStepLabelLang"
+            />
+            <VTextField
+              v-model="newStepLabelLang.value"
+              label="Translation"
+              class="flex-1"
+              density="compact"
+              @keyup.enter="confirmAddingStepLabelLang"
+            />
+            <VBtn size="small" variant="text" color="success" @click="confirmAddingStepLabelLang">
+              <Icon icon="lucide:check" />
+            </VBtn>
+            <VBtn size="small" variant="text" color="error" @click="cancelAddingStepLabelLang">
+              <Icon icon="lucide:x" />
+            </VBtn>
+          </div>
+          <div v-if="isLabelObject(propertyForm.step?.label) && !addingStepLabelLang" class="mt-2 space-y-2">
+            <div v-for="(value, lang) in propertyForm.step?.label" :key="lang" class="flex items-center gap-2">
+              <VTextField
+                :model-value="value"
+                :label="`Label (${String(lang).toUpperCase()})`"
+                class="flex-1"
+                density="compact"
+                @update:model-value="(val) => updateStepLabelLanguage(String(lang), val)"
+              />
+              <VBtn
+                size="small"
+                variant="text"
+                color="error"
+                icon
+                @click="removeStepLabelTranslation(String(lang))"
+                v-if="Object.keys(propertyForm.step?.label || {}).length > 1"
+              >
+                <Icon icon="lucide:trash" />
+              </VBtn>
+            </div>
+            <VBtn size="small" variant="text" color="primary" @click="startAddingStepLabelLang">
+              <Icon icon="lucide:plus" />
+              {{ t('addLanguage') }}
+            </VBtn>
+          </div>
+          <div class="flex items-center gap-2">
+            <VTextField
+              :model-value="getLabelString(propertyForm.step?.labels?.next)"
+              label="Next Button Label"
+              class="flex-1"
+              @update:model-value="
+                (val) =>
+                  isLabelObject(propertyForm.step?.labels?.next) ? updateStepNextLabelLanguage('en', val) : updateStepNextLabel(val)
+              "
+            />
+            <VBtn
+              size="small"
+              variant="outlined"
+              @click="startAddingStepNextLabelLang"
+              v-if="!isLabelObject(propertyForm.step?.labels?.next)"
+            >
+              <Icon icon="lucide:languages" />
+            </VBtn>
+          </div>
+          <div v-if="addingStepNextLabelLang" class="mt-2 flex items-center gap-2">
+            <VTextField
+              v-model="newStepNextLabelLang.code"
+              label="Language Code"
+              placeholder="en, fa, fr, etc."
+              class="flex-1"
+              density="compact"
+              @keyup.enter="confirmAddingStepNextLabelLang"
+            />
+            <VTextField
+              v-model="newStepNextLabelLang.value"
+              label="Translation"
+              class="flex-1"
+              density="compact"
+              @keyup.enter="confirmAddingStepNextLabelLang"
+            />
+            <VBtn size="small" variant="text" color="success" @click="confirmAddingStepNextLabelLang">
+              <Icon icon="lucide:check" />
+            </VBtn>
+            <VBtn size="small" variant="text" color="error" @click="cancelAddingStepNextLabelLang">
+              <Icon icon="lucide:x" />
+            </VBtn>
+          </div>
+          <div v-if="isLabelObject(propertyForm.step?.labels?.next) && !addingStepNextLabelLang" class="mt-2 space-y-2">
+            <div v-for="(value, lang) in propertyForm.step?.labels?.next" :key="lang" class="flex items-center gap-2">
+              <VTextField
+                :model-value="value"
+                :label="`Next Button (${String(lang).toUpperCase()})`"
+                class="flex-1"
+                density="compact"
+                @update:model-value="(val) => updateStepNextLabelLanguage(String(lang), val)"
+              />
+              <VBtn
+                size="small"
+                variant="text"
+                color="error"
+                icon
+                @click="removeStepNextLabelTranslation(String(lang))"
+                v-if="Object.keys(propertyForm.step?.labels?.next || {}).length > 1"
+              >
+                <Icon icon="lucide:trash" />
+              </VBtn>
+            </div>
+            <VBtn size="small" variant="text" color="primary" @click="startAddingStepNextLabelLang">
+              <Icon icon="lucide:plus" />
+              {{ t('addLanguage') }}
+            </VBtn>
+          </div>
+          <div class="flex items-center gap-2">
+            <VTextField
+              :model-value="getLabelString(propertyForm.step?.labels?.previous)"
+              label="Previous Button Label"
+              class="flex-1"
+              @update:model-value="
+                (val) =>
+                  isLabelObject(propertyForm.step?.labels?.previous)
+                    ? updateStepPreviousLabelLanguage('en', val)
+                    : updateStepPreviousLabel(val)
+              "
+            />
+            <VBtn
+              size="small"
+              variant="outlined"
+              @click="startAddingStepPreviousLabelLang"
+              v-if="!isLabelObject(propertyForm.step?.labels?.previous)"
+            >
+              <Icon icon="lucide:languages" />
+            </VBtn>
+          </div>
+          <div v-if="addingStepPreviousLabelLang" class="mt-2 flex items-center gap-2">
+            <VTextField
+              v-model="newStepPreviousLabelLang.code"
+              label="Language Code"
+              placeholder="en, fa, fr, etc."
+              class="flex-1"
+              density="compact"
+              @keyup.enter="confirmAddingStepPreviousLabelLang"
+            />
+            <VTextField
+              v-model="newStepPreviousLabelLang.value"
+              label="Translation"
+              class="flex-1"
+              density="compact"
+              @keyup.enter="confirmAddingStepPreviousLabelLang"
+            />
+            <VBtn size="small" variant="text" color="success" @click="confirmAddingStepPreviousLabelLang">
+              <Icon icon="lucide:check" />
+            </VBtn>
+            <VBtn size="small" variant="text" color="error" @click="cancelAddingStepPreviousLabelLang">
+              <Icon icon="lucide:x" />
+            </VBtn>
+          </div>
+          <div v-if="isLabelObject(propertyForm.step?.labels?.previous) && !addingStepPreviousLabelLang" class="mt-2 space-y-2">
+            <div v-for="(value, lang) in propertyForm.step?.labels?.previous" :key="lang" class="flex items-center gap-2">
+              <VTextField
+                :model-value="value"
+                :label="`Previous Button (${String(lang).toUpperCase()})`"
+                class="flex-1"
+                density="compact"
+                @update:model-value="(val) => updateStepPreviousLabelLanguage(String(lang), val)"
+              />
+              <VBtn
+                size="small"
+                variant="text"
+                color="error"
+                icon
+                @click="removeStepPreviousLabelTranslation(String(lang))"
+                v-if="Object.keys(propertyForm.step?.labels?.previous || {}).length > 1"
+              >
+                <Icon icon="lucide:trash" />
+              </VBtn>
+            </div>
+            <VBtn size="small" variant="text" color="primary" @click="startAddingStepPreviousLabelLang">
+              <Icon icon="lucide:plus" />
+              {{ t('addLanguage') }}
+            </VBtn>
+          </div>
           <VSwitch
             :model-value="(propertyForm.step?.buttons?.previous ?? true) as boolean"
             label="Show Previous Button"
@@ -853,7 +1292,68 @@ defineProps<{
             :label="t('content')"
             @update:model-value="updateItemContent"
           />
-          <VTextField :model-value="propertyForm.item?.label || ''" :label="t('label')" @update:model-value="updateItemLabel" />
+          <div class="flex items-center gap-2">
+            <VTextField
+              :model-value="getLabelString(propertyForm.item?.label)"
+              :label="t('label')"
+              class="flex-1"
+              @update:model-value="
+                (val) => (isLabelObject(propertyForm.item?.label) ? updateItemLabelLanguage('en', val) : updateItemLabel(val))
+              "
+            />
+            <VBtn size="small" variant="outlined" @click="startAddingItemLabelLang" v-if="!isLabelObject(propertyForm.item?.label)">
+              <Icon icon="lucide:languages" />
+            </VBtn>
+          </div>
+          <div v-if="addingItemLabelLang" class="mt-2 flex items-center gap-2">
+            <VTextField
+              v-model="newItemLabelLang.code"
+              label="Language Code"
+              placeholder="en, fa, fr, etc."
+              class="flex-1"
+              density="compact"
+              @keyup.enter="confirmAddingItemLabelLang"
+            />
+            <VTextField
+              v-model="newItemLabelLang.value"
+              label="Translation"
+              class="flex-1"
+              density="compact"
+              @keyup.enter="confirmAddingItemLabelLang"
+            />
+            <VBtn size="small" variant="text" color="success" @click="confirmAddingItemLabelLang">
+              <Icon icon="lucide:check" />
+            </VBtn>
+            <VBtn size="small" variant="text" color="error" @click="cancelAddingItemLabelLang">
+              <Icon icon="lucide:x" />
+            </VBtn>
+          </div>
+          <div v-if="isLabelObject(propertyForm.item?.label) && !addingItemLabelLang" class="mt-2 space-y-2">
+            <div v-for="(value, lang) in propertyForm.item?.label" :key="lang" class="flex items-center gap-2">
+              <VTextField
+                :model-value="value"
+                :label="`Label (${String(lang).toUpperCase()})`"
+                class="flex-1"
+                density="compact"
+                @update:model-value="(val) => updateItemLabelLanguage(String(lang), val)"
+              />
+              <VBtn
+                size="small"
+                variant="text"
+                color="error"
+                icon
+                @click="removeItemLabelTranslation(String(lang))"
+                v-if="Object.keys(propertyForm.item?.label || {}).length > 1"
+              >
+                <Icon icon="lucide:trash" />
+              </VBtn>
+            </div>
+            <VBtn size="small" variant="text" color="primary" @click="startAddingItemLabelLang">
+              <Icon icon="lucide:plus" />
+              {{ t('addLanguage') }}
+            </VBtn>
+          </div>
+
           <VTextField :model-value="propertyForm.item?.info || ''" :label="t('tooltip')" @update:model-value="updateItemInfo" />
           <VTextField
             v-if="propertyForm.item?.builder?.type === 'link'"
@@ -877,7 +1377,67 @@ defineProps<{
         <VExpansionPanelText>
           <VTextField :model-value="propertyForm.item?.name || ''" :label="t('name')" @update:model-value="updateItemName" />
           <VDivider class="my-3" />
-          <VTextField :model-value="propertyForm.item?.label || ''" :label="t('label')" @update:model-value="updateItemLabel" />
+          <div class="flex items-center gap-2">
+            <VTextField
+              :model-value="getLabelString(propertyForm.item?.label)"
+              :label="t('label')"
+              class="flex-1"
+              @update:model-value="
+                (val) => (isLabelObject(propertyForm.item?.label) ? updateItemLabelLanguage('en', val) : updateItemLabel(val))
+              "
+            />
+            <VBtn size="small" variant="outlined" @click="startAddingItemLabelLang" v-if="!isLabelObject(propertyForm.item?.label)">
+              <Icon icon="lucide:languages" />
+            </VBtn>
+          </div>
+          <div v-if="addingItemLabelLang" class="mt-2 flex items-center gap-2">
+            <VTextField
+              v-model="newItemLabelLang.code"
+              label="Language Code"
+              placeholder="en, fa, fr, etc."
+              class="flex-1"
+              density="compact"
+              @keyup.enter="confirmAddingItemLabelLang"
+            />
+            <VTextField
+              v-model="newItemLabelLang.value"
+              label="Translation"
+              class="flex-1"
+              density="compact"
+              @keyup.enter="confirmAddingItemLabelLang"
+            />
+            <VBtn size="small" variant="text" color="success" @click="confirmAddingItemLabelLang">
+              <Icon icon="lucide:check" />
+            </VBtn>
+            <VBtn size="small" variant="text" color="error" @click="cancelAddingItemLabelLang">
+              <Icon icon="lucide:x" />
+            </VBtn>
+          </div>
+          <div v-if="isLabelObject(propertyForm.item?.label) && !addingItemLabelLang" class="mt-2 space-y-2">
+            <div v-for="(value, lang) in propertyForm.item?.label" :key="lang" class="flex items-center gap-2">
+              <VTextField
+                :model-value="value"
+                :label="`Label (${String(lang).toUpperCase()})`"
+                class="flex-1"
+                density="compact"
+                @update:model-value="(val) => updateItemLabelLanguage(String(lang), val)"
+              />
+              <VBtn
+                size="small"
+                variant="text"
+                color="error"
+                icon
+                @click="removeItemLabelTranslation(String(lang))"
+                v-if="Object.keys(propertyForm.item?.label || {}).length > 1"
+              >
+                <Icon icon="lucide:trash" />
+              </VBtn>
+            </div>
+            <VBtn size="small" variant="text" color="primary" @click="startAddingItemLabelLang">
+              <Icon icon="lucide:plus" />
+              {{ t('addLanguage') }}
+            </VBtn>
+          </div>
           <VTextField :model-value="propertyForm.item?.info || ''" :label="t('tooltip')" @update:model-value="updateItemInfo" />
           <VDivider class="my-3" />
           <VTextField
@@ -1439,7 +1999,67 @@ defineProps<{
       <VExpansionPanel>
         <VExpansionPanelTitle>{{ t('properties') }}</VExpansionPanelTitle>
         <VExpansionPanelText>
-          <VTextField :model-value="propertyForm.item?.label || ''" :label="t('label')" @update:model-value="updateItemLabel" />
+          <div class="flex items-center gap-2">
+            <VTextField
+              :model-value="getLabelString(propertyForm.item?.label)"
+              :label="t('label')"
+              class="flex-1"
+              @update:model-value="
+                (val) => (isLabelObject(propertyForm.item?.label) ? updateItemLabelLanguage('en', val) : updateItemLabel(val))
+              "
+            />
+            <VBtn size="small" variant="outlined" @click="startAddingItemLabelLang" v-if="!isLabelObject(propertyForm.item?.label)">
+              <Icon icon="lucide:languages" />
+            </VBtn>
+          </div>
+          <div v-if="addingItemLabelLang" class="mt-2 flex items-center gap-2">
+            <VTextField
+              v-model="newItemLabelLang.code"
+              label="Language Code"
+              placeholder="en, fa, fr, etc."
+              class="flex-1"
+              density="compact"
+              @keyup.enter="confirmAddingItemLabelLang"
+            />
+            <VTextField
+              v-model="newItemLabelLang.value"
+              label="Translation"
+              class="flex-1"
+              density="compact"
+              @keyup.enter="confirmAddingItemLabelLang"
+            />
+            <VBtn size="small" variant="text" color="success" @click="confirmAddingItemLabelLang">
+              <Icon icon="lucide:check" />
+            </VBtn>
+            <VBtn size="small" variant="text" color="error" @click="cancelAddingItemLabelLang">
+              <Icon icon="lucide:x" />
+            </VBtn>
+          </div>
+          <div v-if="isLabelObject(propertyForm.item?.label) && !addingItemLabelLang" class="mt-2 space-y-2">
+            <div v-for="(value, lang) in propertyForm.item?.label" :key="lang" class="flex items-center gap-2">
+              <VTextField
+                :model-value="value"
+                :label="`Label (${String(lang).toUpperCase()})`"
+                class="flex-1"
+                density="compact"
+                @update:model-value="(val) => updateItemLabelLanguage(String(lang), val)"
+              />
+              <VBtn
+                size="small"
+                variant="text"
+                color="error"
+                icon
+                @click="removeItemLabelTranslation(String(lang))"
+                v-if="Object.keys(propertyForm.item?.label || {}).length > 1"
+              >
+                <Icon icon="lucide:trash" />
+              </VBtn>
+            </div>
+            <VBtn size="small" variant="text" color="primary" @click="startAddingItemLabelLang">
+              <Icon icon="lucide:plus" />
+              {{ t('addLanguage') }}
+            </VBtn>
+          </div>
           <VTextField :model-value="propertyForm.item?.name || ''" :label="t('name')" @update:model-value="updateItemName" />
         </VExpansionPanelText>
       </VExpansionPanel>

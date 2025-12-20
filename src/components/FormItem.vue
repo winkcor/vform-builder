@@ -4,7 +4,7 @@ import type { VueformSchema } from '@vueform/vueform';
 import { dir } from 'i18next';
 import { Motion } from 'motion-v';
 import { Icon } from '@iconify/vue';
-import { computed, defineEmits, defineProps, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import type { Item } from '@/components/form-builder/types';
 
@@ -16,6 +16,7 @@ const props = defineProps<{
   item: Item;
   gridRef: HTMLDivElement;
   formComponent?: any;
+  locale?: string;
 }>();
 
 const emit = defineEmits<{
@@ -27,7 +28,65 @@ const formStore = useFormStore();
 const propertyForm = usePropertiesForm();
 const { getLocale } = useI18n();
 
-const formItem = computed(() => formStore.form.schema[props.item.id]);
+function getLocalizedLabel(label: any, locale: string = 'en'): string {
+  if (typeof label === 'object' && label !== null && !Array.isArray(label)) {
+    return label[locale] || label.en || label.fa || Object.values(label)[0] || '';
+  }
+  return label || '';
+}
+
+const formItem = computed(() => {
+  const item = formStore.form.schema[props.item.id];
+  if (!item) return item;
+
+  const localizedItem = { ...item };
+
+  if (item.label) {
+    localizedItem.label = getLocalizedLabel(item.label, props.locale || 'en');
+  }
+
+  if (item.buttonLabel) {
+    localizedItem.buttonLabel = getLocalizedLabel(item.buttonLabel, props.locale || 'en');
+  }
+
+  if (item.text) {
+    localizedItem.text = getLocalizedLabel(item.text, props.locale || 'en');
+  }
+
+  if (item.info) {
+    localizedItem.info = getLocalizedLabel(item.info, props.locale || 'en');
+  }
+
+  if (item.placeholder) {
+    localizedItem.placeholder = getLocalizedLabel(item.placeholder, props.locale || 'en');
+  }
+
+  if (item.description) {
+    localizedItem.description = getLocalizedLabel(item.description, props.locale || 'en');
+  }
+
+  if (item.content) {
+    localizedItem.content = getLocalizedLabel(item.content, props.locale || 'en');
+  }
+
+  if (item.labels && typeof item.labels === 'object') {
+    localizedItem.labels = { ...item.labels };
+    for (const [key, value] of Object.entries(item.labels)) {
+      if (value && typeof value === 'object') {
+        (localizedItem.labels as any)[key] = getLocalizedLabel(value, props.locale || 'en');
+      }
+    }
+  }
+
+  if (item.items && Array.isArray(item.items)) {
+    localizedItem.items = item.items.map((item) => ({
+      ...item,
+      label: getLocalizedLabel(item.label, props.locale || 'en'),
+    }));
+  }
+
+  return localizedItem;
+});
 
 const startX = ref(0);
 const colSpan = ref(formItem.value?.columns?.container ?? 12);
@@ -103,6 +162,7 @@ const formComponent = computed(() => props.formComponent || 'vueform');
       <component
         :is="formComponent"
         class="w-full"
+        :locale="props.locale"
         :schema="{
           [props.item.id]: { ...formItem, columns: undefined } as VueformSchema,
         }"

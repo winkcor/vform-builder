@@ -110,6 +110,7 @@ export default {
   autocomplete: 'Autocomplete',
   customAttributes: 'Custom Attributes',
   addAttribute: 'Add Attribute',
+  addLanguage: 'Add Language',
   key: 'Key',
   id: 'ID',
   step: 'step',

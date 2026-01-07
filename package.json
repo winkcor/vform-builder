@@ -31,9 +31,11 @@
   },
   "homepage": "https://github.com/winkcor/vform-builder#readme",
   "files": [
-    "dist"
+    "/dist"
   ],
   "scripts": {
+    "link": "npm run build -- --watch --no-minify && pnpm link --global",
+    "unlink": "rm -rf $PNPM_HOME/global",
     "dev": "vite --port 3006",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",

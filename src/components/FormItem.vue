@@ -8,8 +8,8 @@ import { computed, ref, watch } from 'vue';
 
 import type { Item } from '@/components/form-builder/types';
 
-import { useFormStore } from '@/store/form';
 import { usePropertiesForm } from '@/store/propertiesPanel';
+import { useFormStore, type SchemaItem } from '@/store/form';
 import { useI18n } from '@/components/form-builder/composables/useI18n';
 
 const props = defineProps<{
@@ -94,7 +94,20 @@ const startSpan = ref(6);
 const dragging = ref(false);
 
 function handleItemClick() {
-  propertyForm.item = { id: props.item.id, name: formItem.value?.name || props.item.id, ...formItem.value };
+  const schemaItem = formStore.form.schema[props.item.id];
+  const selectedItem: Partial<SchemaItem> & { id: string } = schemaItem
+    ? {
+        ...schemaItem,
+        id: props.item.id,
+        name: schemaItem.name || props.item.id,
+      }
+    : {
+        ...props.item,
+        id: props.item.id,
+        name: props.item.name || props.item.id,
+      };
+
+  propertyForm.item = selectedItem;
   propertyForm.step = null;
 }
 
@@ -188,10 +201,10 @@ const formComponent = computed(() => props.formComponent || 'vueform');
         class="absolute start-0 end-0 bottom-full flex justify-end gap-2 p-1 opacity-0 transition-opacity group-hover:opacity-100!"
         :class="[propertyForm.item?.id === item.id && 'opacity-100!']"
       >
-        <button class="rounded bg-(--vf-primary)! px-2 py-1 text-xs" @click.stop="emit('copy')">
+        <button type="button" class="rounded bg-(--vf-primary)! px-2 py-1 text-xs" @click.stop="emit('copy')">
           <Icon icon="lucide:copy" />
         </button>
-        <button class="rounded bg-(--vf-primary)! px-2 py-1 text-xs" @click="emit('delete')">
+        <button type="button" class="rounded bg-(--vf-primary)! px-2 py-1 text-xs" @click="emit('delete')">
           <Icon icon="lucide:trash" />
         </button>
       </div>

@@ -56,7 +56,7 @@ const updateForm = (v: any) => {
 
       <VCardActions>
         <VSpacer />
-        <VBtn variant="text" @click="$emit('update:modelValue', false)">{{ t('close') }}</VBtn>
+        <VBtn type="button" variant="text" @click="$emit('update:modelValue', false)">{{ t('close') }}</VBtn>
       </VCardActions>
     </VCard>
   </VDialog>

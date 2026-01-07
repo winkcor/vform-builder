@@ -15,11 +15,15 @@ const addingStepLabelLang = ref(false);
 const addingStepNextLabelLang = ref(false);
 const addingStepPreviousLabelLang = ref(false);
 const addingItemLabelLang = ref(false);
+const addingButtonLabelLang = ref(false);
+const addingTextLang = ref(false);
 
 const newStepLabelLang = ref({ code: '', value: '' });
 const newStepNextLabelLang = ref({ code: '', value: '' });
 const newStepPreviousLabelLang = ref({ code: '', value: '' });
 const newItemLabelLang = ref({ code: '', value: '' });
+const newButtonLabelLang = ref({ code: '', value: '' });
+const newTextLang = ref({ code: '', value: '' });
 
 const isStaticElement = computed(() => propertyForm.item?.type === 'static');
 const isFieldElement = computed(
@@ -275,6 +279,96 @@ function confirmAddingItemLabelLang() {
   }
 }
 
+function addButtonLabelTranslation(language: string, value: string = '') {
+  if (propertyForm.item && language.trim()) {
+    const currentLabel = propertyForm.item.buttonLabel;
+    const newLabel = addLanguageToLabel(currentLabel, language, value);
+    updateButtonLabel(newLabel);
+  }
+  addingButtonLabelLang.value = false;
+  newButtonLabelLang.value = { code: '', value: '' };
+}
+
+function removeButtonLabelTranslation(language: string) {
+  if (propertyForm.item) {
+    const currentLabel = propertyForm.item.buttonLabel;
+    const newLabel = removeLanguageFromLabel(currentLabel, language);
+    updateButtonLabel(newLabel);
+  }
+}
+
+function startAddingButtonLabelLang() {
+  addingButtonLabelLang.value = true;
+}
+
+function cancelAddingButtonLabelLang() {
+  addingButtonLabelLang.value = false;
+  newButtonLabelLang.value = { code: '', value: '' };
+}
+
+function confirmAddingButtonLabelLang() {
+  if (newButtonLabelLang.value.code.trim()) {
+    addButtonLabelTranslation(newButtonLabelLang.value.code, newButtonLabelLang.value.value);
+  }
+}
+
+function updateButtonLabelLanguage(language: string, value: string) {
+  if (propertyForm.item) {
+    const currentLabel = propertyForm.item.buttonLabel;
+    const labelObj = isLabelObject(currentLabel)
+      ? { ...(currentLabel as Record<string, string>) }
+      : convertLabelToObject(getLabelString(currentLabel), language);
+    labelObj[language] = value;
+    updateButtonLabel(labelObj);
+  }
+}
+
+function addTextTranslation(language: string, value: string = '') {
+  if (propertyForm.item && language.trim()) {
+    const currentText = propertyForm.item.text;
+    const newText = addLanguageToLabel(currentText, language, value);
+    updateRadioText(newText);
+  }
+  addingTextLang.value = false;
+  newTextLang.value = { code: '', value: '' };
+}
+
+function removeTextTranslation(language: string) {
+  if (propertyForm.item) {
+    const currentText = propertyForm.item.text;
+    const newText = removeLanguageFromLabel(currentText, language);
+    updateRadioText(newText);
+  }
+}
+
+function startAddingTextLang() {
+  addingTextLang.value = true;
+}
+
+function cancelAddingTextLang() {
+  addingTextLang.value = false;
+  newTextLang.value = { code: '', value: '' };
+}
+
+function confirmAddingTextLang() {
+  if (newTextLang.value.code.trim() && newTextLang.value.value.trim()) {
+    addTextTranslation(newTextLang.value.code, newTextLang.value.value);
+    addingTextLang.value = false;
+    newTextLang.value = { code: '', value: '' };
+  }
+}
+
+function updateTextLanguage(language: string, value: string) {
+  if (propertyForm.item) {
+    const currentText = propertyForm.item.text;
+    const textObj = isLabelObject(currentText)
+      ? { ...(currentText as Record<string, string>) }
+      : convertLabelToObject(getLabelString(currentText), language);
+    textObj[language] = value;
+    updateRadioText(textObj);
+  }
+}
+
 function updateStepLabelLanguage(language: string, value: string) {
   if (propertyForm.step && formStore.form.steps) {
     const currentLabel = propertyForm.step.label;
@@ -506,7 +600,7 @@ function updateItemDescription(val: string) {
   }
 }
 
-function updateButtonLabel(val: string) {
+function updateButtonLabel(val: string | Record<string, string>) {
   if (propertyForm.item) {
     propertyForm.item.buttonLabel = val;
     if (formStore.form.schema[propertyForm.item.id]) {
@@ -858,7 +952,7 @@ function toggleRule(ruleName: string, enabled: boolean) {
   }
 }
 
-function updateRadioText(val: string) {
+function updateRadioText(val: string | Record<string, string>) {
   if (propertyForm.item) {
     propertyForm.item.text = val;
     if (formStore.form.schema[propertyForm.item.id]) {
@@ -870,12 +964,9 @@ function updateRadioText(val: string) {
 function updateRadioName(val: string) {
   if (propertyForm.item) {
     if (val && val.trim() !== '') {
-      const numVal = parseInt(val, 10);
-      if (!isNaN(numVal)) {
-        propertyForm.item.radioName = numVal;
-        if (formStore.form.schema[propertyForm.item.id]) {
-          formStore.form.schema[propertyForm.item.id]!.radioName = numVal;
-        }
+      propertyForm.item.radioName = val;
+      if (formStore.form.schema[propertyForm.item.id]) {
+        formStore.form.schema[propertyForm.item.id]!.radioName = val;
       }
     } else {
       propertyForm.item.radioName = undefined;
@@ -889,12 +980,9 @@ function updateRadioName(val: string) {
 function updateRadioValue(val: string) {
   if (propertyForm.item) {
     if (val && val.trim() !== '') {
-      const numVal = parseInt(val, 10);
-      if (!isNaN(numVal)) {
-        propertyForm.item.radioValue = numVal;
-        if (formStore.form.schema[propertyForm.item.id]) {
-          formStore.form.schema[propertyForm.item.id]!.radioValue = numVal;
-        }
+      propertyForm.item.radioValue = val;
+      if (formStore.form.schema[propertyForm.item.id]) {
+        formStore.form.schema[propertyForm.item.id]!.radioValue = val;
       }
     } else {
       propertyForm.item.radioValue = undefined;
@@ -925,7 +1013,7 @@ function addRadioTabItem() {
   if (!schemaItem.items) {
     schemaItem.items = [];
   }
-  const newValue = schemaItem.items.length > 0 ? Math.max(...schemaItem.items.map((i) => i.value)) + 1 : 0;
+  const newValue = schemaItem.items.length > 0 ? String(Math.max(...schemaItem.items.map((i) => parseInt(i.value) || 0)) + 1) : '0';
   schemaItem.items.push({ value: newValue, label: '' });
   if (propertyForm.item) {
     propertyForm.item.items = [...schemaItem.items];
@@ -948,10 +1036,7 @@ function updateRadioTabItem(index: number, field: 'value' | 'label', val: string
   const schemaItem = formStore.form.schema[propertyForm.item.id]!;
   if (schemaItem.items && schemaItem.items[index]) {
     if (field === 'value') {
-      const numVal = parseInt(val, 10);
-      if (!isNaN(numVal)) {
-        schemaItem.items[index]!.value = numVal;
-      }
+      schemaItem.items[index]!.value = val;
     } else {
       schemaItem.items[index]!.label = val;
     }
@@ -1086,7 +1171,13 @@ defineProps<{
                 (val) => (isLabelObject(propertyForm.step?.label) ? updateStepLabelLanguage('en', val) : updateStepLabel(val))
               "
             />
-            <VBtn size="small" variant="outlined" @click="startAddingStepLabelLang" v-if="!isLabelObject(propertyForm.step?.label)">
+            <VBtn
+              type="button"
+              size="small"
+              variant="outlined"
+              @click="startAddingStepLabelLang"
+              v-if="!isLabelObject(propertyForm.step?.label)"
+            >
               <Icon icon="lucide:languages" />
             </VBtn>
           </div>
@@ -1106,10 +1197,10 @@ defineProps<{
               density="compact"
               @keyup.enter="confirmAddingStepLabelLang"
             />
-            <VBtn size="small" variant="text" color="success" @click="confirmAddingStepLabelLang">
+            <VBtn type="button" size="small" variant="text" color="success" @click="confirmAddingStepLabelLang">
               <Icon icon="lucide:check" />
             </VBtn>
-            <VBtn size="small" variant="text" color="error" @click="cancelAddingStepLabelLang">
+            <VBtn type="button" size="small" variant="text" color="error" @click="cancelAddingStepLabelLang">
               <Icon icon="lucide:x" />
             </VBtn>
           </div>
@@ -1123,6 +1214,7 @@ defineProps<{
                 @update:model-value="(val) => updateStepLabelLanguage(String(lang), val)"
               />
               <VBtn
+                type="button"
                 size="small"
                 variant="text"
                 color="error"
@@ -1133,7 +1225,7 @@ defineProps<{
                 <Icon icon="lucide:trash" />
               </VBtn>
             </div>
-            <VBtn size="small" variant="text" color="primary" @click="startAddingStepLabelLang">
+            <VBtn type="button" size="small" variant="text" color="primary" @click="startAddingStepLabelLang">
               <Icon icon="lucide:plus" />
               {{ t('addLanguage') }}
             </VBtn>
@@ -1149,6 +1241,7 @@ defineProps<{
               "
             />
             <VBtn
+              type="button"
               size="small"
               variant="outlined"
               @click="startAddingStepNextLabelLang"
@@ -1173,10 +1266,10 @@ defineProps<{
               density="compact"
               @keyup.enter="confirmAddingStepNextLabelLang"
             />
-            <VBtn size="small" variant="text" color="success" @click="confirmAddingStepNextLabelLang">
+            <VBtn type="button" size="small" variant="text" color="success" @click="confirmAddingStepNextLabelLang">
               <Icon icon="lucide:check" />
             </VBtn>
-            <VBtn size="small" variant="text" color="error" @click="cancelAddingStepNextLabelLang">
+            <VBtn type="button" size="small" variant="text" color="error" @click="cancelAddingStepNextLabelLang">
               <Icon icon="lucide:x" />
             </VBtn>
           </div>
@@ -1190,6 +1283,7 @@ defineProps<{
                 @update:model-value="(val) => updateStepNextLabelLanguage(String(lang), val)"
               />
               <VBtn
+                type="button"
                 size="small"
                 variant="text"
                 color="error"
@@ -1200,7 +1294,7 @@ defineProps<{
                 <Icon icon="lucide:trash" />
               </VBtn>
             </div>
-            <VBtn size="small" variant="text" color="primary" @click="startAddingStepNextLabelLang">
+            <VBtn type="button" size="small" variant="text" color="primary" @click="startAddingStepNextLabelLang">
               <Icon icon="lucide:plus" />
               {{ t('addLanguage') }}
             </VBtn>
@@ -1218,6 +1312,7 @@ defineProps<{
               "
             />
             <VBtn
+              type="button"
               size="small"
               variant="outlined"
               @click="startAddingStepPreviousLabelLang"
@@ -1242,10 +1337,10 @@ defineProps<{
               density="compact"
               @keyup.enter="confirmAddingStepPreviousLabelLang"
             />
-            <VBtn size="small" variant="text" color="success" @click="confirmAddingStepPreviousLabelLang">
+            <VBtn type="button" size="small" variant="text" color="success" @click="confirmAddingStepPreviousLabelLang">
               <Icon icon="lucide:check" />
             </VBtn>
-            <VBtn size="small" variant="text" color="error" @click="cancelAddingStepPreviousLabelLang">
+            <VBtn type="button" size="small" variant="text" color="error" @click="cancelAddingStepPreviousLabelLang">
               <Icon icon="lucide:x" />
             </VBtn>
           </div>
@@ -1259,6 +1354,7 @@ defineProps<{
                 @update:model-value="(val) => updateStepPreviousLabelLanguage(String(lang), val)"
               />
               <VBtn
+                type="button"
                 size="small"
                 variant="text"
                 color="error"
@@ -1269,7 +1365,7 @@ defineProps<{
                 <Icon icon="lucide:trash" />
               </VBtn>
             </div>
-            <VBtn size="small" variant="text" color="primary" @click="startAddingStepPreviousLabelLang">
+            <VBtn type="button" size="small" variant="text" color="primary" @click="startAddingStepPreviousLabelLang">
               <Icon icon="lucide:plus" />
               {{ t('addLanguage') }}
             </VBtn>
@@ -1301,7 +1397,13 @@ defineProps<{
                 (val) => (isLabelObject(propertyForm.item?.label) ? updateItemLabelLanguage('en', val) : updateItemLabel(val))
               "
             />
-            <VBtn size="small" variant="outlined" @click="startAddingItemLabelLang" v-if="!isLabelObject(propertyForm.item?.label)">
+            <VBtn
+              type="button"
+              size="small"
+              variant="outlined"
+              @click="startAddingItemLabelLang"
+              v-if="!isLabelObject(propertyForm.item?.label)"
+            >
               <Icon icon="lucide:languages" />
             </VBtn>
           </div>
@@ -1321,10 +1423,10 @@ defineProps<{
               density="compact"
               @keyup.enter="confirmAddingItemLabelLang"
             />
-            <VBtn size="small" variant="text" color="success" @click="confirmAddingItemLabelLang">
+            <VBtn type="button" size="small" variant="text" color="success" @click="confirmAddingItemLabelLang">
               <Icon icon="lucide:check" />
             </VBtn>
-            <VBtn size="small" variant="text" color="error" @click="cancelAddingItemLabelLang">
+            <VBtn type="button" size="small" variant="text" color="error" @click="cancelAddingItemLabelLang">
               <Icon icon="lucide:x" />
             </VBtn>
           </div>
@@ -1338,6 +1440,7 @@ defineProps<{
                 @update:model-value="(val) => updateItemLabelLanguage(String(lang), val)"
               />
               <VBtn
+                type="button"
                 size="small"
                 variant="text"
                 color="error"
@@ -1348,7 +1451,7 @@ defineProps<{
                 <Icon icon="lucide:trash" />
               </VBtn>
             </div>
-            <VBtn size="small" variant="text" color="primary" @click="startAddingItemLabelLang">
+            <VBtn type="button" size="small" variant="text" color="primary" @click="startAddingItemLabelLang">
               <Icon icon="lucide:plus" />
               {{ t('addLanguage') }}
             </VBtn>
@@ -1377,67 +1480,76 @@ defineProps<{
         <VExpansionPanelText>
           <VTextField :model-value="propertyForm.item?.name || ''" :label="t('name')" @update:model-value="updateItemName" />
           <VDivider class="my-3" />
-          <div class="flex items-center gap-2">
-            <VTextField
-              :model-value="getLabelString(propertyForm.item?.label)"
-              :label="t('label')"
-              class="flex-1"
-              @update:model-value="
-                (val) => (isLabelObject(propertyForm.item?.label) ? updateItemLabelLanguage('en', val) : updateItemLabel(val))
-              "
-            />
-            <VBtn size="small" variant="outlined" @click="startAddingItemLabelLang" v-if="!isLabelObject(propertyForm.item?.label)">
-              <Icon icon="lucide:languages" />
-            </VBtn>
-          </div>
-          <div v-if="addingItemLabelLang" class="mt-2 flex items-center gap-2">
-            <VTextField
-              v-model="newItemLabelLang.code"
-              label="Language Code"
-              placeholder="en, fa, fr, etc."
-              class="flex-1"
-              density="compact"
-              @keyup.enter="confirmAddingItemLabelLang"
-            />
-            <VTextField
-              v-model="newItemLabelLang.value"
-              label="Translation"
-              class="flex-1"
-              density="compact"
-              @keyup.enter="confirmAddingItemLabelLang"
-            />
-            <VBtn size="small" variant="text" color="success" @click="confirmAddingItemLabelLang">
-              <Icon icon="lucide:check" />
-            </VBtn>
-            <VBtn size="small" variant="text" color="error" @click="cancelAddingItemLabelLang">
-              <Icon icon="lucide:x" />
-            </VBtn>
-          </div>
-          <div v-if="isLabelObject(propertyForm.item?.label) && !addingItemLabelLang" class="mt-2 space-y-2">
-            <div v-for="(value, lang) in propertyForm.item?.label" :key="lang" class="flex items-center gap-2">
+          <template v-if="!isButtonElement">
+            <div class="flex items-center gap-2">
               <VTextField
-                :model-value="value"
-                :label="`Label (${String(lang).toUpperCase()})`"
+                :model-value="getLabelString(propertyForm.item?.label)"
+                :label="t('label')"
                 class="flex-1"
-                density="compact"
-                @update:model-value="(val) => updateItemLabelLanguage(String(lang), val)"
+                @update:model-value="
+                  (val) => (isLabelObject(propertyForm.item?.label) ? updateItemLabelLanguage('en', val) : updateItemLabel(val))
+                "
               />
               <VBtn
+                type="button"
                 size="small"
-                variant="text"
-                color="error"
-                icon
-                @click="removeItemLabelTranslation(String(lang))"
-                v-if="Object.keys(propertyForm.item?.label || {}).length > 1"
+                variant="outlined"
+                @click="startAddingItemLabelLang"
+                v-if="!isLabelObject(propertyForm.item?.label)"
               >
-                <Icon icon="lucide:trash" />
+                <Icon icon="lucide:languages" />
               </VBtn>
             </div>
-            <VBtn size="small" variant="text" color="primary" @click="startAddingItemLabelLang">
-              <Icon icon="lucide:plus" />
-              {{ t('addLanguage') }}
-            </VBtn>
-          </div>
+            <div v-if="addingItemLabelLang" class="mt-2 flex items-center gap-2">
+              <VTextField
+                v-model="newItemLabelLang.code"
+                label="Language Code"
+                placeholder="en, fa, fr, etc."
+                class="flex-1"
+                density="compact"
+                @keyup.enter="confirmAddingItemLabelLang"
+              />
+              <VTextField
+                v-model="newItemLabelLang.value"
+                label="Translation"
+                class="flex-1"
+                density="compact"
+                @keyup.enter="confirmAddingItemLabelLang"
+              />
+              <VBtn type="button" size="small" variant="text" color="success" @click="confirmAddingItemLabelLang">
+                <Icon icon="lucide:check" />
+              </VBtn>
+              <VBtn type="button" size="small" variant="text" color="error" @click="cancelAddingItemLabelLang">
+                <Icon icon="lucide:x" />
+              </VBtn>
+            </div>
+            <div v-if="isLabelObject(propertyForm.item?.label) && !addingItemLabelLang" class="mt-2 space-y-2">
+              <div v-for="(value, lang) in propertyForm.item?.label" :key="lang" class="flex items-center gap-2">
+                <VTextField
+                  :model-value="value"
+                  :label="`Label (${String(lang).toUpperCase()})`"
+                  class="flex-1"
+                  density="compact"
+                  @update:model-value="(val) => updateItemLabelLanguage(String(lang), val)"
+                />
+                <VBtn
+                  type="button"
+                  size="small"
+                  variant="text"
+                  color="error"
+                  icon
+                  @click="removeItemLabelTranslation(String(lang))"
+                  v-if="Object.keys(propertyForm.item?.label || {}).length > 1"
+                >
+                  <Icon icon="lucide:trash" />
+                </VBtn>
+              </div>
+              <VBtn type="button" size="small" variant="text" color="primary" @click="startAddingItemLabelLang">
+                <Icon icon="lucide:plus" />
+                {{ t('addLanguage') }}
+              </VBtn>
+            </div>
+          </template>
           <VTextField :model-value="propertyForm.item?.info || ''" :label="t('tooltip')" @update:model-value="updateItemInfo" />
           <VDivider class="my-3" />
           <VTextField
@@ -1448,17 +1560,82 @@ defineProps<{
 
           <template v-if="isFieldElement">
             <template v-if="isRadioField">
-              <VTextField :model-value="propertyForm.item?.text || ''" :label="t('text')" @update:model-value="updateRadioText" />
+              <div class="flex items-center gap-2">
+                <VTextField
+                  :model-value="getLabelString(propertyForm.item?.text)"
+                  :label="t('text')"
+                  class="flex-1"
+                  @update:model-value="
+                    (val) => (isLabelObject(propertyForm.item?.text) ? updateTextLanguage('en', val) : updateRadioText(val))
+                  "
+                />
+                <VBtn
+                  type="button"
+                  size="small"
+                  variant="outlined"
+                  @click="startAddingTextLang"
+                  v-if="!isLabelObject(propertyForm.item?.text)"
+                >
+                  <Icon icon="lucide:languages" />
+                </VBtn>
+              </div>
+              <div v-if="addingTextLang" class="mt-2 flex items-center gap-2">
+                <VTextField
+                  v-model="newTextLang.code"
+                  label="Language Code"
+                  placeholder="en, fa, fr, etc."
+                  class="flex-1"
+                  density="compact"
+                  @keyup.enter="confirmAddingTextLang"
+                />
+                <VTextField
+                  v-model="newTextLang.value"
+                  label="Translation"
+                  class="flex-1"
+                  density="compact"
+                  @keyup.enter="confirmAddingTextLang"
+                />
+                <VBtn type="button" size="small" variant="text" color="success" @click="confirmAddingTextLang">
+                  <Icon icon="lucide:check" />
+                </VBtn>
+                <VBtn type="button" size="small" variant="text" color="error" @click="cancelAddingTextLang">
+                  <Icon icon="lucide:x" />
+                </VBtn>
+              </div>
+              <div v-if="isLabelObject(propertyForm.item?.text) && !addingTextLang" class="mt-2 space-y-2">
+                <div v-for="(value, lang) in propertyForm.item?.text" :key="lang" class="flex items-center gap-2">
+                  <VTextField
+                    :model-value="value"
+                    :label="`Text (${String(lang).toUpperCase()})`"
+                    class="flex-1"
+                    density="compact"
+                    @update:model-value="(val) => updateTextLanguage(String(lang), val)"
+                  />
+                  <VBtn
+                    type="button"
+                    size="small"
+                    variant="text"
+                    color="error"
+                    icon
+                    @click="removeTextTranslation(String(lang))"
+                    v-if="Object.keys(propertyForm.item?.text || {}).length > 1"
+                  >
+                    <Icon icon="lucide:trash" />
+                  </VBtn>
+                </div>
+                <VBtn type="button" size="small" variant="text" color="primary" @click="startAddingTextLang">
+                  <Icon icon="lucide:plus" />
+                  {{ t('addLanguage') }}
+                </VBtn>
+              </div>
               <VTextField
-                :model-value="propertyForm.item?.radioName?.toString() || ''"
+                :model-value="propertyForm.item?.radioName || ''"
                 :label="t('radioName')"
-                type="number"
                 @update:model-value="updateRadioName"
               />
               <VTextField
-                :model-value="propertyForm.item?.radioValue?.toString() || ''"
+                :model-value="propertyForm.item?.radioValue || ''"
                 :label="t('radioValue')"
-                type="number"
                 @update:model-value="updateRadioValue"
               />
             </template>
@@ -1605,7 +1782,74 @@ defineProps<{
             </template>
 
             <template v-if="propertyForm.item?.type === 'checkbox'">
-              <VTextField :model-value="propertyForm.item?.text || ''" :label="t('text')" @update:model-value="updateRadioText" />
+              <div class="flex items-center gap-2">
+                <VTextField
+                  :model-value="getLabelString(propertyForm.item?.text)"
+                  :label="t('text')"
+                  class="flex-1"
+                  @update:model-value="
+                    (val) => (isLabelObject(propertyForm.item?.text) ? updateTextLanguage('en', val) : updateRadioText(val))
+                  "
+                />
+                <VBtn
+                  type="button"
+                  size="small"
+                  variant="outlined"
+                  @click="startAddingTextLang"
+                  v-if="!isLabelObject(propertyForm.item?.text)"
+                >
+                  <Icon icon="lucide:languages" />
+                </VBtn>
+              </div>
+              <div v-if="addingTextLang" class="mt-2 flex items-center gap-2">
+                <VTextField
+                  v-model="newTextLang.code"
+                  label="Language Code"
+                  placeholder="en, fa, fr, etc."
+                  class="flex-1"
+                  density="compact"
+                  @keyup.enter="confirmAddingTextLang"
+                />
+                <VTextField
+                  v-model="newTextLang.value"
+                  label="Translation"
+                  class="flex-1"
+                  density="compact"
+                  @keyup.enter="confirmAddingTextLang"
+                />
+                <VBtn type="button" size="small" variant="text" color="success" @click="confirmAddingTextLang">
+                  <Icon icon="lucide:check" />
+                </VBtn>
+                <VBtn type="button" size="small" variant="text" color="error" @click="cancelAddingTextLang">
+                  <Icon icon="lucide:x" />
+                </VBtn>
+              </div>
+              <div v-if="isLabelObject(propertyForm.item?.text) && !addingTextLang" class="mt-2 space-y-2">
+                <div v-for="(value, lang) in propertyForm.item?.text" :key="lang" class="flex items-center gap-2">
+                  <VTextField
+                    :model-value="value"
+                    :label="`Text (${String(lang).toUpperCase()})`"
+                    class="flex-1"
+                    density="compact"
+                    @update:model-value="(val) => updateTextLanguage(String(lang), val)"
+                  />
+                  <VBtn
+                    type="button"
+                    size="small"
+                    variant="text"
+                    color="error"
+                    icon
+                    @click="removeTextTranslation(String(lang))"
+                    v-if="Object.keys(propertyForm.item?.text || {}).length > 1"
+                  >
+                    <Icon icon="lucide:trash" />
+                  </VBtn>
+                </div>
+                <VBtn type="button" size="small" variant="text" color="primary" @click="startAddingTextLang">
+                  <Icon icon="lucide:plus" />
+                  {{ t('addLanguage') }}
+                </VBtn>
+              </div>
               <VTextField
                 :model-value="(propertyForm.item?.trueValue as any as string) || ''"
                 label="True value"
@@ -1622,13 +1866,12 @@ defineProps<{
               <div class="mt-4">
                 <div class="mb-2 flex items-center justify-between">
                   <span class="text-sm font-medium">{{ t('items') }}</span>
-                  <VBtn size="small" variant="outlined" @click="addRadioTabItem">{{ t('addItem') }}</VBtn>
+                  <VBtn type="button" size="small" variant="outlined" @click="addRadioTabItem">{{ t('addItem') }}</VBtn>
                 </div>
                 <div v-for="(item, index) in getRadioGroupItems()" :key="index" class="mb-2 flex items-center gap-2">
                   <VTextField
-                    :model-value="item.value.toString()"
+                    :model-value="item.value"
                     :label="t('value')"
-                    type="number"
                     class="flex-1"
                     density="compact"
                     @update:model-value="(val) => updateRadioTabItem(index, 'value', val)"
@@ -1641,7 +1884,7 @@ defineProps<{
                     density="compact"
                     @update:model-value="(val) => updateRadioTabItem(index, 'label', val)"
                   />
-                  <VBtn size="small" variant="text" color="error" icon @click="removeRadioTabItem(index)">
+                  <VBtn type="button" size="small" variant="text" color="error" icon @click="removeRadioTabItem(index)">
                     <Icon icon="lucide:trash" />
                   </VBtn>
                 </div>
@@ -1649,7 +1892,74 @@ defineProps<{
             </template>
 
             <template v-if="propertyForm.item?.type === 'toggle'">
-              <VTextField :model-value="propertyForm.item?.text || ''" :label="t('text')" @update:model-value="updateRadioText" />
+              <div class="flex items-center gap-2">
+                <VTextField
+                  :model-value="getLabelString(propertyForm.item?.text)"
+                  :label="t('text')"
+                  class="flex-1"
+                  @update:model-value="
+                    (val) => (isLabelObject(propertyForm.item?.text) ? updateTextLanguage('en', val) : updateRadioText(val))
+                  "
+                />
+                <VBtn
+                  type="button"
+                  size="small"
+                  variant="outlined"
+                  @click="startAddingTextLang"
+                  v-if="!isLabelObject(propertyForm.item?.text)"
+                >
+                  <Icon icon="lucide:languages" />
+                </VBtn>
+              </div>
+              <div v-if="addingTextLang" class="mt-2 flex items-center gap-2">
+                <VTextField
+                  v-model="newTextLang.code"
+                  label="Language Code"
+                  placeholder="en, fa, fr, etc."
+                  class="flex-1"
+                  density="compact"
+                  @keyup.enter="confirmAddingTextLang"
+                />
+                <VTextField
+                  v-model="newTextLang.value"
+                  label="Translation"
+                  class="flex-1"
+                  density="compact"
+                  @keyup.enter="confirmAddingTextLang"
+                />
+                <VBtn type="button" size="small" variant="text" color="success" @click="confirmAddingTextLang">
+                  <Icon icon="lucide:check" />
+                </VBtn>
+                <VBtn type="button" size="small" variant="text" color="error" @click="cancelAddingTextLang">
+                  <Icon icon="lucide:x" />
+                </VBtn>
+              </div>
+              <div v-if="isLabelObject(propertyForm.item?.text) && !addingTextLang" class="mt-2 space-y-2">
+                <div v-for="(value, lang) in propertyForm.item?.text" :key="lang" class="flex items-center gap-2">
+                  <VTextField
+                    :model-value="value"
+                    :label="`Text (${String(lang).toUpperCase()})`"
+                    class="flex-1"
+                    density="compact"
+                    @update:model-value="(val) => updateTextLanguage(String(lang), val)"
+                  />
+                  <VBtn
+                    type="button"
+                    size="small"
+                    variant="text"
+                    color="error"
+                    icon
+                    @click="removeTextTranslation(String(lang))"
+                    v-if="Object.keys(propertyForm.item?.text || {}).length > 1"
+                  >
+                    <Icon icon="lucide:trash" />
+                  </VBtn>
+                </div>
+                <VBtn type="button" size="small" variant="text" color="primary" @click="startAddingTextLang">
+                  <Icon icon="lucide:plus" />
+                  {{ t('addLanguage') }}
+                </VBtn>
+              </div>
               <VTextField
                 :model-value="propertyForm.item?.labels?.on || ''"
                 label="On label"
@@ -1676,13 +1986,12 @@ defineProps<{
               <div class="mt-4">
                 <div class="mb-2 flex items-center justify-between">
                   <span class="text-sm font-medium">{{ t('items') }}</span>
-                  <VBtn size="small" variant="outlined" @click="addRadioTabItem">{{ t('addItem') }}</VBtn>
+                  <VBtn type="button" size="small" variant="outlined" @click="addRadioTabItem">{{ t('addItem') }}</VBtn>
                 </div>
                 <div v-for="(item, index) in getRadioGroupItems()" :key="index" class="mb-2 flex items-center gap-2">
                   <VTextField
-                    :model-value="item.value.toString()"
+                    :model-value="item.value"
                     :label="t('value')"
-                    type="number"
                     class="flex-1"
                     density="compact"
                     @update:model-value="(val) => updateRadioTabItem(index, 'value', val)"
@@ -1695,7 +2004,7 @@ defineProps<{
                     density="compact"
                     @update:model-value="(val) => updateRadioTabItem(index, 'label', val)"
                   />
-                  <VBtn size="small" variant="text" color="error" icon @click="removeRadioTabItem(index)">
+                  <VBtn type="button" size="small" variant="text" color="error" icon @click="removeRadioTabItem(index)">
                     <Icon icon="lucide:trash" />
                   </VBtn>
                 </div>
@@ -1840,11 +2149,75 @@ defineProps<{
           </template>
 
           <template v-else-if="isButtonElement">
-            <VTextField
-              :model-value="propertyForm.item?.buttonLabel || ''"
-              :label="t('buttonLabel')"
-              @update:model-value="updateButtonLabel"
-            />
+            <div class="flex items-center gap-2">
+              <VTextField
+                :model-value="getLabelString(propertyForm.item?.buttonLabel)"
+                :label="t('buttonLabel')"
+                class="flex-1"
+                @update:model-value="
+                  (val) =>
+                    isLabelObject(propertyForm.item?.buttonLabel) ? updateButtonLabelLanguage('en', val) : updateButtonLabel(val)
+                "
+              />
+              <VBtn
+                type="button"
+                size="small"
+                variant="outlined"
+                @click="startAddingButtonLabelLang"
+                v-if="!isLabelObject(propertyForm.item?.buttonLabel)"
+              >
+                <Icon icon="lucide:languages" />
+              </VBtn>
+            </div>
+            <div v-if="addingButtonLabelLang" class="mt-2 flex items-center gap-2">
+              <VTextField
+                v-model="newButtonLabelLang.code"
+                label="Language Code"
+                placeholder="en, fa, fr, etc."
+                class="flex-1"
+                density="compact"
+                @keyup.enter="confirmAddingButtonLabelLang"
+              />
+              <VTextField
+                v-model="newButtonLabelLang.value"
+                label="Translation"
+                class="flex-1"
+                density="compact"
+                @keyup.enter="confirmAddingButtonLabelLang"
+              />
+              <VBtn type="button" size="small" variant="text" color="success" @click="confirmAddingButtonLabelLang">
+                <Icon icon="lucide:check" />
+              </VBtn>
+              <VBtn type="button" size="small" variant="text" color="error" @click="cancelAddingButtonLabelLang">
+                <Icon icon="lucide:x" />
+              </VBtn>
+            </div>
+            <div v-if="isLabelObject(propertyForm.item?.buttonLabel) && !addingButtonLabelLang" class="mt-2 space-y-2">
+              <div v-for="(value, lang) in propertyForm.item?.buttonLabel" :key="lang" class="flex items-center gap-2">
+                <VTextField
+                  :model-value="value"
+                  :label="`Button Label (${String(lang).toUpperCase()})`"
+                  class="flex-1"
+                  density="compact"
+                  @update:model-value="(val) => updateButtonLabelLanguage(String(lang), val)"
+                />
+                <VBtn
+                  type="button"
+                  size="small"
+                  variant="text"
+                  color="error"
+                  icon
+                  @click="removeButtonLabelTranslation(String(lang))"
+                  v-if="Object.keys(propertyForm.item?.buttonLabel || {}).length > 1"
+                >
+                  <Icon icon="lucide:trash" />
+                </VBtn>
+              </div>
+              <VBtn type="button" size="small" variant="text" color="primary" @click="startAddingButtonLabelLang">
+                <Icon icon="lucide:plus" />
+                {{ t('addLanguage') }}
+              </VBtn>
+            </div>
             <VSwitch
               :model-value="propertyForm.item?.full ?? false"
               :label="t('fullWidth')"
@@ -1890,7 +2263,7 @@ defineProps<{
           <div class="mt-4">
             <div class="mb-2 flex items-center justify-between">
               <span class="text-sm font-medium">{{ t('items') }}</span>
-              <VBtn size="small" variant="outlined" @click="addRadioTabItem">{{ t('addItem') }}</VBtn>
+              <VBtn type="button" size="small" variant="outlined" @click="addRadioTabItem">{{ t('addItem') }}</VBtn>
             </div>
             <div v-for="(item, index) in getRadioGroupItems()" :key="index" class="mb-2 flex items-center gap-2">
               <VTextField
@@ -1909,7 +2282,7 @@ defineProps<{
                 density="compact"
                 @update:model-value="(val) => updateRadioTabItem(index, 'label', val)"
               />
-              <VBtn size="small" variant="text" color="error" icon @click="removeRadioTabItem(index)">
+              <VBtn type="button" size="small" variant="text" color="error" icon @click="removeRadioTabItem(index)">
                 <Icon icon="lucide:trash" />
               </VBtn>
             </div>
@@ -1961,7 +2334,7 @@ defineProps<{
           <div class="mt-4">
             <div class="mb-2 flex items-center justify-between">
               <span class="text-sm font-medium">{{ t('customAttributes') }}</span>
-              <VBtn size="small" variant="outlined" @click="addCustomAttr">{{ t('addAttribute') }}</VBtn>
+              <VBtn type="button" size="small" variant="outlined" @click="addCustomAttr">{{ t('addAttribute') }}</VBtn>
             </div>
             <div v-for="(value, key) in propertyForm.item?.attrs || {}" :key="key" class="mb-2 flex items-center gap-2">
               <VTextField
@@ -1986,7 +2359,7 @@ defineProps<{
                 density="compact"
                 @update:model-value="(val) => updateCustomAttr(key, val)"
               />
-              <VBtn size="small" variant="text" color="error" icon @click="removeCustomAttr(key)">
+              <VBtn type="button" size="small" variant="text" color="error" icon @click="removeCustomAttr(key)">
                 <Icon icon="lucide:trash" />
               </VBtn>
             </div>
@@ -2008,7 +2381,13 @@ defineProps<{
                 (val) => (isLabelObject(propertyForm.item?.label) ? updateItemLabelLanguage('en', val) : updateItemLabel(val))
               "
             />
-            <VBtn size="small" variant="outlined" @click="startAddingItemLabelLang" v-if="!isLabelObject(propertyForm.item?.label)">
+            <VBtn
+              type="button"
+              size="small"
+              variant="outlined"
+              @click="startAddingItemLabelLang"
+              v-if="!isLabelObject(propertyForm.item?.label)"
+            >
               <Icon icon="lucide:languages" />
             </VBtn>
           </div>
@@ -2028,10 +2407,10 @@ defineProps<{
               density="compact"
               @keyup.enter="confirmAddingItemLabelLang"
             />
-            <VBtn size="small" variant="text" color="success" @click="confirmAddingItemLabelLang">
+            <VBtn type="button" size="small" variant="text" color="success" @click="confirmAddingItemLabelLang">
               <Icon icon="lucide:check" />
             </VBtn>
-            <VBtn size="small" variant="text" color="error" @click="cancelAddingItemLabelLang">
+            <VBtn type="button" size="small" variant="text" color="error" @click="cancelAddingItemLabelLang">
               <Icon icon="lucide:x" />
             </VBtn>
           </div>
@@ -2045,6 +2424,7 @@ defineProps<{
                 @update:model-value="(val) => updateItemLabelLanguage(String(lang), val)"
               />
               <VBtn
+                type="button"
                 size="small"
                 variant="text"
                 color="error"
@@ -2055,7 +2435,7 @@ defineProps<{
                 <Icon icon="lucide:trash" />
               </VBtn>
             </div>
-            <VBtn size="small" variant="text" color="primary" @click="startAddingItemLabelLang">
+            <VBtn type="button" size="small" variant="text" color="primary" @click="startAddingItemLabelLang">
               <Icon icon="lucide:plus" />
               {{ t('addLanguage') }}
             </VBtn>

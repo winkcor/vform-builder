@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import { defineStore } from 'pinia';
 
 export interface RadioTabItem {
-  value: number;
+  value: string;
   label: string;
 }
 
@@ -10,7 +10,7 @@ export interface SchemaItem {
   type: string;
   label?: string | Record<string, string>;
   name?: string;
-  buttonLabel?: string;
+  buttonLabel?: string | Record<string, string>;
   submits?: boolean;
   resets?: boolean;
   secondary?: boolean;
@@ -25,9 +25,9 @@ export interface SchemaItem {
   align?: 'left' | 'center' | 'right';
   autocomplete?: string;
   rules?: string[];
-  text?: string;
-  radioName?: number;
-  radioValue?: number;
+  text?: string | Record<string, string>;
+  radioName?: string;
+  radioValue?: string;
   view?: string;
   items?: RadioTabItem[];
   fieldName?: string;

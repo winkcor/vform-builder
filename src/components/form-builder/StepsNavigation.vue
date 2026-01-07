@@ -39,12 +39,13 @@ const showPreviousButton = computed(() => {
 <template>
   <div v-if="stepsEnabled" class="col-span-12 flex justify-between">
     <VBtn
+      type="button"
       v-if="showPreviousButton"
       class="bg-[var(--vf-bg-btn-secondary)]! text-[var(--vf-color-btn-secondary)]!"
       @click="$emit('prev-step')"
     >
       {{ previousButtonLabel }}
     </VBtn>
-    <VBtn class="bg-[var(--vf-primary)]!" @click="$emit('next-step')">{{ nextButtonLabel }}</VBtn>
+    <VBtn type="button" class="bg-[var(--vf-primary)]!" @click="$emit('next-step')">{{ nextButtonLabel }}</VBtn>
   </div>
 </template>

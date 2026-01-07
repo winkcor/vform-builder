@@ -158,8 +158,7 @@ function createSchemaItem(item: Item, inputKey: string): SchemaItem {
     return {
       name: inputKey,
       type: 'checkboxgroup',
-      label: 'Checkbox group',
-      items: [{ value: 0, label: 'Label' }],
+      items: [{ value: '0', label: 'Label' }],
       builder: {
         type: 'checkboxgroup',
         label: 'Checkbox group',
@@ -183,7 +182,7 @@ function createSchemaItem(item: Item, inputKey: string): SchemaItem {
     return {
       name: inputKey,
       type: 'select',
-      items: [{ value: 0, label: 'Label' }],
+      items: [{ value: '0', label: 'Label' }],
       label: 'Select',
       builder: {
         type: 'select',
@@ -198,7 +197,7 @@ function createSchemaItem(item: Item, inputKey: string): SchemaItem {
       type: 'tags',
       closeOnSelect: false,
       search: true,
-      items: [{ value: 0, label: 'Label' }],
+      items: [{ value: '0', label: 'Label' }],
       label: 'Tags',
       inputType: 'search',
       autocomplete: 'off',

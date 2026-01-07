@@ -43,7 +43,7 @@ const handleStepClick = (key: string, step: StepItem) => {
 <template>
   <div v-if="stepsEnabled" class="mb-2 flex w-full items-center gap-2">
     <div class="flex w-full items-center gap-2">
-      <VBtn icon size="small" variant="text" @click="$emit('delete-steps')">
+      <VBtn type="button" icon size="small" variant="text" @click="$emit('delete-steps')">
         <Icon icon="lucide:x" />
       </VBtn>
 
@@ -68,7 +68,7 @@ const handleStepClick = (key: string, step: StepItem) => {
               class="ent-0 absolute bottom-full flex w-full justify-between opacity-0 transition-opacity group-hover:opacity-100!"
               :class="[propertyForm.item?.id === key && 'opacity-100!']"
             >
-              <button class="bg-[var(--vf-primary)]! p-1!" @click.stop="$emit('remove-step', key)">
+              <button type="button" class="bg-[var(--vf-primary)]! p-1!" @click.stop="$emit('remove-step', key)">
                 <Icon icon="lucide:trash" />
               </button>
             </div>
@@ -83,7 +83,7 @@ const handleStepClick = (key: string, step: StepItem) => {
         </div>
       </div>
 
-      <VBtn icon size="small" variant="text" @click="$emit('add-step')">
+      <VBtn type="button" icon size="small" variant="text" @click="$emit('add-step')">
         <Icon icon="lucide:plus" />
       </VBtn>
     </div>
